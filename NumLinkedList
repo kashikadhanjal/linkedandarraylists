@@ -1,0 +1,282 @@
+package com.kashika.p1;
+
+public class NumLinkedList implements NumList{
+	private Node lst_head;
+    private int size;
+    private int capacity;
+    private boolean sorted;
+    private class Node {
+    	private double data;
+        private Node next;
+        public Node(double data) {
+        	this.data = data;
+        	this.next = null;
+        }
+    }
+    public NumLinkedList()
+    {
+        lst_head = null; //initiates empty list of length = 0
+        size = 0; //start with 0 elements
+        capacity = 50000; //list with 0 spaces
+        sorted = true;
+    }
+    public int size(){
+        return size;
+    }
+    public int capacity(){
+        return capacity;
+    } 
+    public void add(double value){
+    	 	capacity++;
+    		Node p = lst_head; 
+    		if(lst_head == null) {
+    			lst_head = new Node(value);
+    			size++;
+    		}
+    		else {
+    			while(p.next != null)
+    			{
+    				p = p.next;//added another element increment size
+    			}
+    			p.next = new Node(value);
+    			size++;
+    		}
+    		sorted = isSorted();
+           
+    }
+    public void insert(int i, double value){
+        int counter = 0;
+        Node holder = lst_head;
+        if(i > size) {
+        	add(value);
+        }
+        if(i ==0) {
+        	Node first = new Node(value);
+        	first.next = lst_head;
+        	first = lst_head;
+        }
+        else {
+        	while(counter < i-1) {
+        			holder = holder.next;
+        			counter++;
+        		}
+        	Node temp = holder.next;
+        	Node newNode = new Node(value);
+        	holder.next = newNode;
+        	newNode.next = temp;
+        	size++;
+        	capacity++;
+        	}
+        sorted = isSorted();
+    }
+    public void remove(int i){
+        if(i==0) {
+        	Node temp = lst_head.next;
+        	lst_head = temp;
+        	size--;
+        }
+    	if(i < size){ 
+           int counter = 0;
+           Node holder = lst_head;
+           while(counter < i-1) {
+        	   holder = holder.next;
+        	   counter++;
+           }
+           Node temp = holder.next.next;
+           holder.next = temp;
+           size--;
+        }
+    	sorted = isSorted();
+    }
+    public boolean contains(double value){
+        boolean holder = false;//initial condition set to false
+        Node p = lst_head;
+        while(p != null)//iterate through list
+        {
+            if(p.data == value){ //if list has value set to true 
+                return true;
+            }
+            else {
+            	p = p.next;
+            }
+        }
+        return holder; //return value after iteration
+    }
+    public double lookup(int i){
+        if (size<=i){ //if not within size 
+            throw new NullPointerException();
+        }
+        else{ //return the element 
+            Node holder = lst_head;
+            int counter = 0;
+            while(counter < i) {
+            	holder = holder.next;
+            	counter++;
+            }
+            return holder.data;
+        }
+    }
+    public boolean equals(NumList otherList){
+        boolean placeholder = true; //set to true initially 
+        Node holder = lst_head;
+        if(otherList.size() != size)
+        {
+        	return false;
+        }
+        else {
+        	int i = 0;
+        	while(holder.next != null){ //iterate through list 
+        		if( holder.data != otherList.lookup(i)){ // values from lists at i are not equal 
+        			return false; //set to false
+        		}
+        		holder = holder.next;
+        		i++;
+        	}
+        	return placeholder; //return boolean
+        }
+    }
+    public void removeDuplicates()
+    {
+        NumLinkedList noduplicates = new NumLinkedList(); //make a new NumLinkedList of capacity size
+        Node holder = lst_head; 
+        int count = 0; //establish duplicate counting variable to 0
+        while(holder != null) //iterate through the list 
+        {
+            if(noduplicates.size() == 0) {
+            	noduplicates.add(holder.data);
+            }
+            else if(noduplicates.contains(holder.data)==false){ //if the noduplicates list does not have value at list index i it adds
+                noduplicates.add(holder.data);
+            }
+            else{ //else the count of number of duplicates iterates 
+                count++;
+            }
+            holder = holder.next;
+        }
+        lst_head = noduplicates.lst_head; //list now points to the list of the noduplicates NumLinkedList
+        size = size-count; // the new size is the old size minus the number of duplicates counted
+    }
+    public String toString(){
+        if(size == 0){ // return empty string if empty 
+            return " ";
+        }
+        else{
+            String tostring = ""; //establish string with no characters
+            Node holder = lst_head;
+            while(holder != null){ //iterate through list and add every value and a space
+                tostring += holder.data; 
+                tostring += " ";
+                holder = holder.next;
+            }
+            tostring = tostring.trim(); //trim off extra white space at end 
+            return tostring; //return the string 
+        }
+    }
+    public boolean isSorted() {
+    	Node holder = lst_head;
+    	if(holder == null) {
+    		return sorted;
+    	}
+    	else {
+    		while(holder.next != null) {
+    			if(holder.data >= holder.next.data) {
+    				sorted = false;
+    			}
+    			holder = holder.next;
+    		}
+    	return sorted;
+    	}
+    }
+    public void reverse() {
+    	Node current = lst_head;
+    	Node prev = null;
+    	Node next = null;
+    	while(current != null) {
+    		next = current.next;
+    		current.next = prev;
+    		prev = current;
+    		current = next;
+    	}
+    	lst_head = prev;
+    }
+    public NumList union(NumList list1, NumList list2) {
+    	NumLinkedList unionized = new NumLinkedList();
+    	int counter1 = 0;
+    	int counter2 = 0;
+    	int size1 = list1.size();
+    	int size2 = list2.size();
+    	if(list1.isSorted() == false || list2.isSorted() == false) {
+    		sorted = false;
+    	}
+    	while(counter1 < size1 && counter2 < size2) {
+    		double first = list1.lookup(counter1);
+    		double second = list2.lookup(counter2);
+    		if(first<second) {
+    			unionized.add(list1.lookup(counter1));
+    			counter1++;
+    		}
+    		else if(second<first ) {
+    			unionized.add(list2.lookup(counter2));
+    			counter2++;
+    		}
+    		else
+    		{
+    			unionized.add(list1.lookup(counter1));
+    			counter1++;
+    			counter2++;
+    		}
+    	}
+    	while(counter1 < list1.size()) {
+    		unionized.add(list1.lookup(counter1));
+    		counter1++;
+    	}
+    	while(counter2 < list2.size()) {
+    		unionized.add(list2.lookup(counter2));
+    		counter2++;
+    	}
+    	unionized.removeDuplicates();
+    	return unionized;
+    }
+    public static void main(String[] args)
+    {
+        NumLinkedList n = new NumLinkedList();
+        n.add(5.0);
+        n.add(6.0);
+        n.add(7.0);
+        n.insert(1, 4.3);
+        n.remove(2);
+        boolean test = n.contains(5.0);
+        System.out.print(test);
+        String s = n.toString();
+        System.out.println(s);
+        NumLinkedList checkequality = new NumLinkedList();
+        checkequality.add(5.0);
+        checkequality.add(4.3);
+        checkequality.add(7.0);
+        boolean check = n.equals(checkequality);
+        System.out.println(check);
+        n.add(6.0);
+        n.add(2.0);
+        n.add(7.0);
+        n.add(5.0);
+        n.add(8.0);
+        n.removeDuplicates();
+        String test2 = n.toString();
+        System.out.println(test2);
+        n.insert(9, 4.5);
+        System.out.println(n.toString());
+        Boolean check2 = n.isSorted();
+        System.out.println(check2.toString());
+        NumArrayList n2 = new NumArrayList(8);
+        n2.add(2.0);
+        n2.add(3.5);
+        n2.add(4.0);
+        n2.add(4.5);
+        n2.add(7.0);
+        NumList newList = n.union(n, n2);
+        System.out.println(newList.toString());
+        newList.reverse();
+        System.out.println(newList.toString());
+
+    }
+}
